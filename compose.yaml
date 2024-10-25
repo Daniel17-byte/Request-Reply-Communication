@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  users:
+    build:
+      context: ./users
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/users
+    depends_on:
+      - db
+
+  devices:
+    build:
+      context: ./devices
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/devices
+    depends_on:
+      - db
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8080"
+    depends_on:
+      - users
+      - devices
+
+  db:
+    image: mysql:8.0.1
+    environment:
+      MYSQL_DATABASE: users
+      MYSQL_PASSWORD: adminpass
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
