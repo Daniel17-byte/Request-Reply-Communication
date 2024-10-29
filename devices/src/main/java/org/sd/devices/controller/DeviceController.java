@@ -11,6 +11,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/devices")
+@CrossOrigin(origins = "http://localhost:3000")
 public class DeviceController {
 
     private final DeviceService deviceService;

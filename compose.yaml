@@ -9,13 +9,13 @@ services:
       context: ./users
       dockerfile: Dockerfile
     ports:
-      - "8081:8081"
+      - "8081:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/users
+      SPRING_DATASOURCE_URL: jdbc:mysql://db_users:3306/users
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: adminpass
     depends_on:
-      - db
+      - db_users
     networks:
       - my-network
 
@@ -24,13 +24,13 @@ services:
       context: ./devices
       dockerfile: Dockerfile
     ports:
-      - "8082:8082"
+      - "8082:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/devices
+      SPRING_DATASOURCE_URL: jdbc:mysql://db_devices:3306/devices
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: adminpass
     depends_on:
-      - db
+      - db_devices
     networks:
       - my-network
 
@@ -46,7 +46,7 @@ services:
     networks:
       - my-network
 
-  db:
+  db_users:
     image: mysql:8.0.4
     platform: linux/amd64
     environment:
@@ -57,3 +57,15 @@ services:
       - "3307:3306"
     networks:
         - my-network
+
+  db_devices:
+    image: mysql:8.0.4
+    platform: linux/amd64
+    environment:
+      MYSQL_DATABASE: devices
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: adminpass
+    ports:
+      - "3308:3306"
+    networks:
+      - my-network

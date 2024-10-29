@@ -1,7 +1,13 @@
+import UserManagement from "./user/UserManagement";
+import DeviceManager from "./device/DeviceManager";
+
 function App() {
   return (
     <>
-      <h1>Daniel is awesome!</h1>
+        <div className="App">
+            <UserManagement/>
+            <DeviceManager/>
+        </div>
     </>
   );
 }
