@@ -1,103 +1,156 @@
 import React, { useEffect, useState } from 'react';
+import { fetchDevices, addDevice, updateDevice, deleteDevice } from './DeviceService';
+import './DeviceManager.css';
 
 const DeviceManager = () => {
     const [devices, setDevices] = useState([]);
-    const [newDevice, setNewDevice] = useState({ name: '', type: '', model: '', manufacturer: '', serialNumber: '' });
+    const [currentDevice, setCurrentDevice] = useState({
+        name: '',
+        type: '',
+        model: '',
+        manufacturer: '',
+        serialNumber: ''
+    });
+    const [editMode, setEditMode] = useState(false);
+    const [currentDeviceId, setCurrentDeviceId] = useState(null);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Fetch devices from the API
     useEffect(() => {
-        fetch('http://localhost:8082/devices')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => setDevices(data))
-            .catch(error => setError(error.message));
+        const loadDevices = async () => {
+            setLoading(true);
+            try {
+                const data = await fetchDevices();
+                setDevices(data);
+            } catch (error) {
+                setError('Failed to load devices. Please try again later.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadDevices();
     }, []);
 
-    // Handle adding a new device
-    const handleAddDevice = () => {
-        fetch('http://localhost:8082/devices', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newDevice),
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to add device');
-                }
-                return response.json();
-            })
-            .then(device => {
-                setDevices([...devices, device]);
-                setNewDevice({ name: '', type: '', model: '', manufacturer: '', serialNumber: '' }); // Reset form
-            })
-            .catch(error => setError(error.message));
+    const handleAddOrUpdateDevice = async (e) => {
+        e.preventDefault();
+        setError(null);
+        try {
+            if (editMode) {
+                const updatedDevice = await updateDevice(currentDeviceId, currentDevice);
+                setDevices(prevDevices =>
+                    prevDevices.map(device =>
+                        device.uuid === currentDeviceId ? updatedDevice : device
+                    )
+                );
+                setEditMode(false);
+                setCurrentDeviceId(null);
+            } else {
+                const device = await addDevice(currentDevice);
+                setDevices(prevDevices => [...prevDevices, device]);
+            }
+            resetForm();
+        } catch (error) {
+            setError('Failed to save device. Please try again.');
+        }
     };
 
-    // Handle deleting a device
-    const handleDeleteDevice = (id) => {
-        fetch(`http://localhost:8082/devices/${id}`, {
-            method: 'DELETE',
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to delete device');
-                }
-                setDevices(devices.filter(device => device.uuid !== id)); // Update local state
-            })
-            .catch(error => setError(error.message));
+
+    const handleEditDevice = (device) => {
+        setCurrentDevice(device);
+        setEditMode(true);
+        setCurrentDeviceId(device.uuid);
+    };
+
+    const handleDeleteDevice = async (id) => {
+        setError(null);
+        try {
+            await deleteDevice(id);
+            setDevices(prevDevices => prevDevices.filter(device => device.uuid !== id));
+        } catch (error) {
+            setError('Failed to delete device. Please try again.');
+        }
+    };
+
+    const resetForm = () => {
+        setCurrentDevice({ name: '', type: '', model: '', manufacturer: '', serialNumber: '' });
     };
 
     return (
         <div>
             <h1>Device Manager</h1>
             {error && <p style={{ color: 'red' }}>{error}</p>}
-            <ul>
-                {devices.map(device => (
-                    <li key={device.uuid}>
-                        {device.name} - {device.type}
-                        <button onClick={() => handleDeleteDevice(device.uuid)}>Delete</button>
-                    </li>
-                ))}
-            </ul>
-            <h2>Add New Device</h2>
-            <input
-                type="text"
-                placeholder="Name"
-                value={newDevice.name}
-                onChange={(e) => setNewDevice({ ...newDevice, name: e.target.value })}
-            />
-            <input
-                type="text"
-                placeholder="Type"
-                value={newDevice.type}
-                onChange={(e) => setNewDevice({ ...newDevice, type: e.target.value })}
-            />
-            <input
-                type="text"
-                placeholder="Model"
-                value={newDevice.model}
-                onChange={(e) => setNewDevice({ ...newDevice, model: e.target.value })}
-            />
-            <input
-                type="text"
-                placeholder="Manufacturer"
-                value={newDevice.manufacturer}
-                onChange={(e) => setNewDevice({ ...newDevice, manufacturer: e.target.value })}
-            />
-            <input
-                type="text"
-                placeholder="Serial Number"
-                value={newDevice.serialNumber}
-                onChange={(e) => setNewDevice({ ...newDevice, serialNumber: e.target.value })}
-            />
-            <button onClick={handleAddDevice}>Add Device</button>
+            {loading ? (
+                <p>Loading devices...</p>
+            ) : (
+                <>
+                    <form onSubmit={handleAddOrUpdateDevice}>
+                        <input
+                            type="text"
+                            placeholder="Name"
+                            value={currentDevice.name}
+                            onChange={(e) => setCurrentDevice({ ...currentDevice, name: e.target.value })}
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="Type"
+                            value={currentDevice.type}
+                            onChange={(e) => setCurrentDevice({ ...currentDevice, type: e.target.value })}
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="Model"
+                            value={currentDevice.model}
+                            onChange={(e) => setCurrentDevice({ ...currentDevice, model: e.target.value })}
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="Manufacturer"
+                            value={currentDevice.manufacturer}
+                            onChange={(e) => setCurrentDevice({ ...currentDevice, manufacturer: e.target.value })}
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="Serial Number"
+                            value={currentDevice.serialNumber}
+                            onChange={(e) => setCurrentDevice({ ...currentDevice, serialNumber: e.target.value })}
+                            required
+                        />
+                        <button type="submit">{editMode ? 'Update Device' : 'Add Device'}</button>
+                    </form>
+
+                    <table className="device-table">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Model</th>
+                            <th>Manufacturer</th>
+                            <th>Serial Number</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {devices.map(device => (
+                            <tr key={device.uuid}>
+                                <td>{device.name}</td>
+                                <td>{device.type}</td>
+                                <td>{device.model}</td>
+                                <td>{device.manufacturer}</td>
+                                <td>{device.serialNumber}</td>
+                                <td>
+                                    <button onClick={() => handleEditDevice(device)}>Edit</button>
+                                    <button onClick={() => handleDeleteDevice(device.uuid)}>Delete</button>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </>
+            )}
         </div>
     );
 };

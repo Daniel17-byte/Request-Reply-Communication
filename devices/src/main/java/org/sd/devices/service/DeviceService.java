@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class DeviceService {
@@ -23,18 +24,17 @@ public class DeviceService {
         return deviceRepository.save(device);
     }
 
-    public Optional<Device> getDeviceById(Long id) {
-        return deviceRepository.findById(id);
+    public Device getDeviceByUuid(UUID uuid) {
+        return deviceRepository.findByUuid(uuid);
     }
 
-    public Device updateDevice(Long id, Device device) {
-        if (deviceRepository.findById(id).isPresent()){
-            return deviceRepository.save(device);
-        }
-        return null;
+    public Device updateDevice(Device device) {
+        deviceRepository.updateDeviceByUuid(device.getUuid(), device);
+        return device;
     }
 
-    public void deleteDevice(Long id) {
-        deviceRepository.deleteById(id);
+    public void deleteDevice(UUID uuid) {
+        Device device = deviceRepository.getDeviceByUuid(uuid);
+        deviceRepository.delete(device);
     }
 }

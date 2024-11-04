@@ -1,6 +1,6 @@
-// src/UserManagement.js
 import React, { useState, useEffect } from 'react';
 import UserService from './UserService';
+import './UserManagement.css';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -36,39 +36,46 @@ const UserManagement = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (editMode) {
-            // You can implement the update logic here
-            // Example: await UserService.updateUser(userId, user);
+            try {
+                await UserService.updateUser(userId, user);
+                setEditMode(false);
+                setUserId(null);
+            } catch (error) {
+                console.error('Failed to update user', error);
+            }
         } else {
             try {
                 await UserService.createUser(user);
-                setUser({
-                    username: '',
-                    password: '',
-                    firstName: '',
-                    lastName: '',
-                    email: '',
-                    phone: '',
-                    role: '',
-                });
-                fetchUsers(); // Refresh the user list after creation
             } catch (error) {
-                console.error(error);
+                console.error('Failed to create user', error);
             }
         }
+
+        setUser({
+            username: '',
+            password: '',
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+            role: '',
+        });
+
+        fetchUsers();
     };
 
     const handleEdit = (user) => {
         setUser(user);
         setEditMode(true);
-        setUserId(user.uuid); // Assuming uuid is used as the ID
+        setUserId(user.uuid);
     };
 
     const handleDelete = async (id) => {
         try {
             await UserService.deleteUser(id);
-            fetchUsers(); // Refresh the user list after deletion
+            fetchUsers();
         } catch (error) {
-            console.error(error);
+            console.error('Failed to delete user', error);
         }
     };
 
@@ -76,24 +83,92 @@ const UserManagement = () => {
         <div>
             <h1>User Management</h1>
             <form onSubmit={handleSubmit}>
-                <input type="text" name="username" placeholder="Username" value={user.username} onChange={handleChange} required />
-                <input type="password" name="password" placeholder="Password" value={user.password} onChange={handleChange} required />
-                <input type="text" name="firstName" placeholder="First Name" value={user.firstName} onChange={handleChange} required />
-                <input type="text" name="lastName" placeholder="Last Name" value={user.lastName} onChange={handleChange} required />
-                <input type="email" name="email" placeholder="Email" value={user.email} onChange={handleChange} required />
-                <input type="text" name="phone" placeholder="Phone" value={user.phone} onChange={handleChange} required />
-                <input type="text" name="role" placeholder="Role" value={user.role} onChange={handleChange} required />
+                <input
+                    type="text"
+                    name="username"
+                    placeholder="Username"
+                    value={user.username}
+                    onChange={handleChange}
+                    required
+                />
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    value={user.password}
+                    onChange={handleChange}
+                    required
+                />
+                <input
+                    type="text"
+                    name="firstName"
+                    placeholder="First Name"
+                    value={user.firstName}
+                    onChange={handleChange}
+                    required
+                />
+                <input
+                    type="text"
+                    name="lastName"
+                    placeholder="Last Name"
+                    value={user.lastName}
+                    onChange={handleChange}
+                    required
+                />
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={user.email}
+                    onChange={handleChange}
+                    required
+                />
+                <input
+                    type="text"
+                    name="phone"
+                    placeholder="Phone"
+                    value={user.phone}
+                    onChange={handleChange}
+                    required
+                />
+                <select
+                    name="role"
+                    value={user.role}
+                    onChange={handleChange}
+                    required
+                >
+                    <option value="" disabled>Select Role</option>
+                    <option value="ADMIN">ADMIN</option>
+                    <option value="CLIENT">CLIENT</option>
+                </select>
                 <button type="submit">{editMode ? 'Update User' : 'Create User'}</button>
             </form>
-            <ul>
+
+            <table className="user-table">
+                <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
                 {users.map((user) => (
-                    <li key={user.uuid}>
-                        {user.username} - {user.email}
-                        <button onClick={() => handleEdit(user)}>Edit</button>
-                        <button onClick={() => handleDelete(user.uuid)}>Delete</button>
-                    </li>
+                    <tr key={user.uuid} className={`user-row ${user.role.toLowerCase()}`}>
+                        <td>{user.username}</td>
+                        <td>{user.email}</td>
+                        <td>{user.phone}</td>
+                        <td className={`role-cell ${user.role.toLowerCase()}`}>{user.role}</td>
+                        <td>
+                            <button onClick={() => handleEdit(user)}>Edit</button>
+                            <button onClick={() => handleDelete(user.uuid)}>Delete</button>
+                        </td>
+                    </tr>
                 ))}
-            </ul>
+                </tbody>
+            </table>
         </div>
     );
 };

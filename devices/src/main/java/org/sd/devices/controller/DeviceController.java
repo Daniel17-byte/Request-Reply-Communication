@@ -8,10 +8,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/devices")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
 public class DeviceController {
 
     private final DeviceService deviceService;
@@ -26,11 +27,15 @@ public class DeviceController {
         return new ResponseEntity<>(devices, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Device> getDeviceById(@PathVariable Long id) {
-        Optional<Device> device = deviceService.getDeviceById(id);
-        return device.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @GetMapping("/{uuid}")
+    public ResponseEntity<Device> getDeviceById(@PathVariable UUID uuid) {
+        Device device = deviceService.getDeviceByUuid(uuid);
+
+        if (device == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(device, HttpStatus.OK);
     }
 
     @PostMapping
@@ -39,19 +44,19 @@ public class DeviceController {
         return new ResponseEntity<>(deviceResponse, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Device> updateDevice(@PathVariable Long id, @RequestBody Device device) {
+    @PutMapping("/{uuid}")
+    public ResponseEntity<Device> updateDevice(@PathVariable UUID uuid, @RequestBody Device device) {
         try {
-            Device updatedDevice = deviceService.updateDevice(id, device);
+            Device updatedDevice = deviceService.updateDevice(device);
             return ResponseEntity.ok(updatedDevice);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDevice(@PathVariable Long id) {
-        deviceService.deleteDevice(id);
+    @DeleteMapping("/{uuid}")
+    public ResponseEntity<Void> deleteDevice(@PathVariable UUID uuid) {
+        deviceService.deleteDevice(uuid);
         return ResponseEntity.noContent().build();
     }
 }
