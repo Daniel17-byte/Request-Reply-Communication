@@ -4,6 +4,24 @@ networks:
     driver: bridge
 
 services:
+  monitoring:
+    build:
+      context: ./monitoring
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8080"
+    networks:
+      - my-network
+
+  communication:
+    build:
+      context: ./communication
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8080"
+    networks:
+      - my-network
+
   users:
     build:
       context: ./users
