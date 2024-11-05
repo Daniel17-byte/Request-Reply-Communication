@@ -37,4 +37,8 @@ public class DeviceService {
         Device device = deviceRepository.getDeviceByUuid(uuid);
         deviceRepository.delete(device);
     }
+
+    public void deleteDeviceByUsername(String username) {
+        deviceRepository.deleteDeviceByUsername(username);
+    }
 }

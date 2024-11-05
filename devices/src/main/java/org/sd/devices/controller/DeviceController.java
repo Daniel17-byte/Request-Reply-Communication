@@ -7,12 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/devices")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001", "http://localhost:8081"})
 public class DeviceController {
 
     private final DeviceService deviceService;
@@ -57,6 +56,13 @@ public class DeviceController {
     @DeleteMapping("/{uuid}")
     public ResponseEntity<Void> deleteDevice(@PathVariable UUID uuid) {
         deviceService.deleteDevice(uuid);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/delete/{username}")
+    public ResponseEntity<Void> deleteDeviceByUsername(@PathVariable String username) {
+        System.out.println(username);
+        deviceService.deleteDeviceByUsername(username);
         return ResponseEntity.noContent().build();
     }
 }

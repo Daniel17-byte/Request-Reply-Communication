@@ -20,6 +20,7 @@ public class Device {
     private String model;
     private String manufacturer;
     private String serialNumber;
+    private String username;
 
     public Device() {
         this.uuid = UUID.randomUUID();

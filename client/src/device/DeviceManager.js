@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { fetchDevices, addDevice, updateDevice, deleteDevice } from './DeviceService';
+import {fetchDevices, addDevice, updateDevice, deleteDevice, deleteDeviceByUsername} from './DeviceService';
 import './DeviceManager.css';
 
 const DeviceManager = () => {
     const [devices, setDevices] = useState([]);
     const [currentDevice, setCurrentDevice] = useState({
+        username: '',
         name: '',
         type: '',
         model: '',
@@ -72,7 +73,7 @@ const DeviceManager = () => {
     };
 
     const resetForm = () => {
-        setCurrentDevice({ name: '', type: '', model: '', manufacturer: '', serialNumber: '' });
+        setCurrentDevice({ username: '', name: '', type: '', model: '', manufacturer: '', serialNumber: '' });
     };
 
     return (
@@ -86,37 +87,44 @@ const DeviceManager = () => {
                     <form onSubmit={handleAddOrUpdateDevice}>
                         <input
                             type="text"
+                            placeholder="Username"
+                            value={currentDevice.username}
+                            onChange={(e) => setCurrentDevice({...currentDevice, username: e.target.value})}
+                            required
+                        />
+                        <input
+                            type="text"
                             placeholder="Name"
                             value={currentDevice.name}
-                            onChange={(e) => setCurrentDevice({ ...currentDevice, name: e.target.value })}
+                            onChange={(e) => setCurrentDevice({...currentDevice, name: e.target.value})}
                             required
                         />
                         <input
                             type="text"
                             placeholder="Type"
                             value={currentDevice.type}
-                            onChange={(e) => setCurrentDevice({ ...currentDevice, type: e.target.value })}
+                            onChange={(e) => setCurrentDevice({...currentDevice, type: e.target.value})}
                             required
                         />
                         <input
                             type="text"
                             placeholder="Model"
                             value={currentDevice.model}
-                            onChange={(e) => setCurrentDevice({ ...currentDevice, model: e.target.value })}
+                            onChange={(e) => setCurrentDevice({...currentDevice, model: e.target.value})}
                             required
                         />
                         <input
                             type="text"
                             placeholder="Manufacturer"
                             value={currentDevice.manufacturer}
-                            onChange={(e) => setCurrentDevice({ ...currentDevice, manufacturer: e.target.value })}
+                            onChange={(e) => setCurrentDevice({...currentDevice, manufacturer: e.target.value})}
                             required
                         />
                         <input
                             type="text"
                             placeholder="Serial Number"
                             value={currentDevice.serialNumber}
-                            onChange={(e) => setCurrentDevice({ ...currentDevice, serialNumber: e.target.value })}
+                            onChange={(e) => setCurrentDevice({...currentDevice, serialNumber: e.target.value})}
                             required
                         />
                         <button type="submit">{editMode ? 'Update Device' : 'Add Device'}</button>
@@ -125,6 +133,7 @@ const DeviceManager = () => {
                     <table className="device-table">
                         <thead>
                         <tr>
+                            <th>Username</th>
                             <th>Name</th>
                             <th>Type</th>
                             <th>Model</th>
@@ -136,6 +145,7 @@ const DeviceManager = () => {
                         <tbody>
                         {devices.map(device => (
                             <tr key={device.uuid}>
+                                <td>{device.username}</td>
                                 <td>{device.name}</td>
                                 <td>{device.type}</td>
                                 <td>{device.model}</td>

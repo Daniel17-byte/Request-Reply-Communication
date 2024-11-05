@@ -4,7 +4,9 @@ import org.sd.users.UsersApplication;
 import org.sd.users.model.User;
 import org.sd.users.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,11 +15,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final PBKDF2PasswordEncoderHelper passwordEncoderHelper;
     private final SessionManager sessionManager;
+    private static final String BASE_URL = "http://request-reply-communication-devices-1:8080/devices";
+    private final RestTemplate restTemplate;
 
-    public UserService(UserRepository userRepository, PBKDF2PasswordEncoderHelper passwordEncoderHelper, SessionManager sessionManager) {
+    public UserService(UserRepository userRepository, PBKDF2PasswordEncoderHelper passwordEncoderHelper, SessionManager sessionManager, RestTemplate restTemplate) {
         this.userRepository = userRepository;
         this.passwordEncoderHelper = passwordEncoderHelper;
         this.sessionManager = sessionManager;
+        this.restTemplate = restTemplate;
     }
 
     public User createUser(User user) {
@@ -65,5 +70,16 @@ public class UserService {
 
     public User getUserFromSession() {
         return sessionManager.getUserFromSession();
+    }
+
+    public void deleteDevices(String username) {
+        URI uri = URI.create(BASE_URL + "/delete/" + username);
+
+        try {
+            restTemplate.delete(uri);
+            System.out.println("Devices deleted successfully for user: " + username);
+        } catch (Exception e) {
+            System.err.println("Failed to delete devices for user " + username + ": " + e.getMessage());
+        }
     }
 }
