@@ -4,21 +4,19 @@ networks:
     driver: bridge
 
 services:
-  monitoring:
+  monitoring-communication:
     build:
-      context: ./monitoring
+      context: ./monitoring-communication
       dockerfile: Dockerfile
     ports:
       - "8083:8080"
-    networks:
-      - my-network
-
-  communication:
-    build:
-      context: ./communication
-      dockerfile: Dockerfile
-    ports:
-      - "8084:8080"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      - rabbitmq
     networks:
       - my-network
 
@@ -85,5 +83,16 @@ services:
       MYSQL_ROOT_PASSWORD: adminpass
     ports:
       - "3308:3306"
+    networks:
+      - my-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     networks:
       - my-network
