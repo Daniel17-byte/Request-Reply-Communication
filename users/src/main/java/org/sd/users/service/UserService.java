@@ -15,7 +15,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PBKDF2PasswordEncoderHelper passwordEncoderHelper;
     private final SessionManager sessionManager;
-    private static final String BASE_URL = "http://request-reply-communication-devices-1:8080/devices";
+    private static final String BASE_URL = "http://devices:8080/api/devices";
     private final RestTemplate restTemplate;
 
     public UserService(UserRepository userRepository, PBKDF2PasswordEncoderHelper passwordEncoderHelper, SessionManager sessionManager, RestTemplate restTemplate) {

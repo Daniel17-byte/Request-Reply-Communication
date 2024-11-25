@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/devices")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001", "http://localhost:8081"})
+@RequestMapping("/api/devices")
+@CrossOrigin(origins = {"http://gateway:8080"})
 public class DeviceController {
 
     private final DeviceService deviceService;
