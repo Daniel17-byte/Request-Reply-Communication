@@ -30,9 +30,8 @@ services:
     build:
       context: ./users
       dockerfile: Dockerfile
-    container_name: users
-    ports:
-      - "8081:8080"
+    deploy:
+      replicas: 2
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db_users:3306/users
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}

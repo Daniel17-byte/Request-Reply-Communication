@@ -1,4 +1,4 @@
-package org.sd.gateway.proxy;
+package org.sd.gateway.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpEntity;
@@ -13,12 +13,12 @@ import java.util.Enumeration;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = {"http://localhost:3000"})
-public class ProxyController {
+public class ReverseProxy {
     private final RestTemplate restTemplate;
     private final String USERS_SERVICE_URL = "http://users:8080";
     private final String DEVICES_SERVICE_URL = "http://devices:8080";
 
-    public ProxyController(RestTemplate restTemplate) {
+    public ReverseProxy(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
@@ -78,4 +78,25 @@ public class ProxyController {
         }
         return headers;
     }
+
+    @PostMapping("/auth/**")
+    public ResponseEntity<String> proxyPostAuth(HttpServletRequest request, @RequestBody String body) {
+        String path = request.getRequestURI().replace("/api", "");
+        String url = USERS_SERVICE_URL + path;
+
+        HttpHeaders headers = getHttpHeaders(request);
+        HttpEntity<String> entity = new HttpEntity<>(body, headers);
+        return restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+    }
+
+    @GetMapping("/auth/**")
+    public ResponseEntity<String> proxyGetAuth(HttpServletRequest request) {
+        String path = request.getRequestURI().replace("/api", "");
+        String url = USERS_SERVICE_URL + path;
+
+        HttpHeaders headers = getHttpHeaders(request);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        return restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+    }
+
 }
