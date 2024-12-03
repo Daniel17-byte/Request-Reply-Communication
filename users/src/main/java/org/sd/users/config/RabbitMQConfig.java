@@ -1,4 +1,4 @@
-package org.sd.monitoringcommunication.config;
+package org.sd.users.config;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;

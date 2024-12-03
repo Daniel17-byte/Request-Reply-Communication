@@ -1,4 +1,4 @@
-package org.sd.monitoringcommunication.service;
+package org.sd.users.service;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
