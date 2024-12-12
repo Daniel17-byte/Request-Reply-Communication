@@ -54,6 +54,7 @@ const deleteUser = async (id) => {
 };
 
 const authenticate = async (credentials) => {
+    // const response = await fetch(`http://localhost:8080/auth/authenticate`, {
     const response = await fetch(`${API_URL}/authenticate`, {
         method: 'POST',
         headers: {

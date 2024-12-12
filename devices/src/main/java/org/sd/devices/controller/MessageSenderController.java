@@ -1,15 +1,15 @@
-package org.sd.users.controller;
+package org.sd.devices.controller;
 
-import org.sd.users.service.MessageProducer;
+import org.sd.devices.service.MessageProducer;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.UUID;
+
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/devices")
 @CrossOrigin(origins = {"http://gateway:8080"})
 public class MessageSenderController {
 
@@ -20,7 +20,7 @@ public class MessageSenderController {
     }
 
     @PostMapping("/simulate/{deviceId}")
-    public String uploadFile(@RequestParam("file") MultipartFile file, @PathVariable UUID deviceId) {
+    public String uploadFile(@RequestParam("file") MultipartFile file, @PathVariable Long deviceId) {
         long predefinedTimestamp = System.currentTimeMillis();
         String predefinedDeviceId = deviceId.toString();
 

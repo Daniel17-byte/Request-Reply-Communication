@@ -6,9 +6,24 @@ networks:
 volumes:
   db_users_data:
   db_devices_data:
+  db_monitoring_data:
   rabbitmq_data:
 
 services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbit-mq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - my-network
+
   monitoring-communication:
     build:
       context: ./monitoring-communication
@@ -16,13 +31,19 @@ services:
     container_name: monitoring
     ports:
       - "8083:8080"
+#    deploy:
+#      replicas: 3
     environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db_monitoring:3306/monitoring
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
     depends_on:
       - rabbitmq
+      - db_monitoring
     networks:
       - my-network
 
@@ -30,14 +51,22 @@ services:
     build:
       context: ./users
       dockerfile: Dockerfile
+#    container_name: users
+#    ports:
+#      - "8081:8080"
     deploy:
-      replicas: 2
+      replicas: 3
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db_users:3306/users
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
     depends_on:
       - db_users
+      - rabbitmq
     networks:
       - my-network
 
@@ -48,6 +77,8 @@ services:
     container_name: devices
     ports:
       - "8082:8080"
+#    deploy:
+#      replicas: 3
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db_devices:3306/devices
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
@@ -57,10 +88,21 @@ services:
     networks:
       - my-network
 
+  chat:
+    build:
+      context: ./chat
+      dockerfile: Dockerfile
+    container_name: chat
+    ports:
+      - "8084:8080"
+    networks:
+      - my-network
+
   client:
     build:
       context: ./client
       dockerfile: Dockerfile
+    container_name: client
     ports:
       - "3000:3000"
     depends_on:
@@ -72,6 +114,7 @@ services:
   db_users:
     image: mysql:8.0.4
     platform: linux/amd64
+    container_name: db_users
     environment:
       MYSQL_DATABASE: users
       MYSQL_USER: root
@@ -86,6 +129,7 @@ services:
   db_devices:
     image: mysql:8.0.4
     platform: linux/amd64
+    container_name: db_devices
     environment:
       MYSQL_DATABASE: devices
       MYSQL_USER: root
@@ -97,21 +141,24 @@ services:
     networks:
       - my-network
 
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+  db_monitoring:
+    image: mysql:8.0.4
+    platform: linux/amd64
+    container_name: db_monitoring
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      MYSQL_DATABASE: monitoring
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "3309:3306"
     volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
+      - db_monitoring_data:/var/lib/mysql
     networks:
       - my-network
 
   nginx:
     image: nginx:latest
+    container_name: nginx
     ports:
       - "80:80"
     volumes:
