@@ -1,8 +1,19 @@
 const BASE_URL = 'http://localhost:8080/api/devices';
 
+const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+    };
+};
+
 export const fetchDevices = async () => {
     try {
-        const response = await fetch(BASE_URL);
+        const response = await fetch(BASE_URL, {
+            method: 'GET',
+            headers: getAuthHeaders(),
+        });
         if (!response.ok) {
             const errorDetails = await response.text();
             throw new Error(`Failed to fetch devices: ${errorDetails}`);
@@ -18,9 +29,7 @@ export const addDevice = async (newDevice) => {
     try {
         const response = await fetch(BASE_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(newDevice),
         });
         if (!response.ok) {
@@ -38,9 +47,7 @@ export const updateDevice = async (id, updatedDevice) => {
     try {
         const response = await fetch(`${BASE_URL}/${id}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(updatedDevice),
         });
         if (!response.ok) {
@@ -58,6 +65,7 @@ export const deleteDevice = async (id) => {
     try {
         const response = await fetch(`${BASE_URL}/${id}`, {
             method: 'DELETE',
+            headers: getAuthHeaders(),
         });
         if (!response.ok) {
             const errorDetails = await response.text();

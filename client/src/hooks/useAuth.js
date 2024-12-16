@@ -10,6 +10,7 @@ const useAuth = () => {
         const fetchUser = async () => {
             try {
                 const loggedInUser = await UserService.getLoggedInUser();
+                console.log("USER : " + loggedInUser);
                 setUser(loggedInUser);
             } catch (err) {
                 setError(err);

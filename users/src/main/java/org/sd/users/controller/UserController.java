@@ -63,9 +63,9 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/getLoggedInUser")
-    public ResponseEntity<User> getUser() {
-        User user = userService.getUserFromSession();
+    @GetMapping("/username/{username}")
+    public ResponseEntity<User> getUser(@PathVariable String username) {
+        User user = userService.getUserByUsername(username);
 
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

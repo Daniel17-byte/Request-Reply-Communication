@@ -1,7 +1,18 @@
 const API_URL = 'http://localhost:8080/api/users';
 
+const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+    };
+};
+
 const getAllUsers = async () => {
-    const response = await fetch(API_URL);
+    const response = await fetch(API_URL, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+    });
     if (!response.ok) {
         throw new Error('Failed to fetch users');
     }
@@ -9,7 +20,10 @@ const getAllUsers = async () => {
 };
 
 const getUserById = async (id) => {
-    const response = await fetch(`${API_URL}/${id}`);
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+    });
     if (!response.ok) {
         throw new Error('Failed to fetch user');
     }
@@ -19,9 +33,7 @@ const getUserById = async (id) => {
 const createUser = async (user) => {
     const response = await fetch(API_URL, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(user),
     });
     if (!response.ok) {
@@ -33,9 +45,7 @@ const createUser = async (user) => {
 const updateUser = async (id, user) => {
     const response = await fetch(`${API_URL}/${id}`, {
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(user),
     });
     if (!response.ok) {
@@ -47,6 +57,7 @@ const updateUser = async (id, user) => {
 const deleteUser = async (id) => {
     const response = await fetch(`${API_URL}/${id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
     });
     if (!response.ok) {
         throw new Error('Failed to delete user');
@@ -54,8 +65,7 @@ const deleteUser = async (id) => {
 };
 
 const authenticate = async (credentials) => {
-    // const response = await fetch(`http://localhost:8080/auth/authenticate`, {
-    const response = await fetch(`${API_URL}/authenticate`, {
+    const response = await fetch(`http://localhost:8080/auth/authenticate`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -66,16 +76,16 @@ const authenticate = async (credentials) => {
     if (!response.ok) {
         throw new Error('Failed to authenticate');
     }
-    return response.json();
+
+    const data = await response.json();
+    localStorage.setItem('token', data.token);
+    return data;
 };
 
 const getLoggedInUser = async () => {
-    const response = await fetch(`${API_URL}/getLoggedInUser`, {
+    const response = await fetch(`http://localhost:8080/auth/getLoggedInUser`, {
         method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        credentials: 'include',
+        headers: getAuthHeaders(),
     });
 
     if (!response.ok) {

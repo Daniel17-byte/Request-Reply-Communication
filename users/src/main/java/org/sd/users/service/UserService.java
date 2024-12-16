@@ -82,4 +82,8 @@ public class UserService {
             System.err.println("Failed to delete devices for user " + username + ": " + e.getMessage());
         }
     }
+
+    public User getUserByUsername(String username) {
+        return userRepository.getUserByUsername(username);
+    }
 }

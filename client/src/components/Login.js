@@ -17,8 +17,8 @@ const Login = () => {
         setError(null);
 
         try {
-            const user = await UserService.authenticate(credentials);
-            console.log(user);
+            await UserService.authenticate(credentials);
+            const user = await UserService.getLoggedInUser();
             if (user.role === 'ADMIN') {
                 navigate('/admin');
             } else {

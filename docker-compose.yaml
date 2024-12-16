@@ -8,6 +8,7 @@ volumes:
   db_devices_data:
   db_monitoring_data:
   rabbitmq_data:
+  maven_cache:
 
 services:
   rabbitmq:
@@ -44,6 +45,8 @@ services:
     depends_on:
       - rabbitmq
       - db_monitoring
+    volumes:
+      - maven_cache:/root/.m2
     networks:
       - my-network
 
@@ -67,6 +70,8 @@ services:
     depends_on:
       - db_users
       - rabbitmq
+    volumes:
+      - maven_cache:/root/.m2
     networks:
       - my-network
 
@@ -85,6 +90,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
     depends_on:
       - db_devices
+    volumes:
+      - maven_cache:/root/.m2
     networks:
       - my-network
 
@@ -190,5 +197,7 @@ services:
     depends_on:
       - users
       - devices
+    volumes:
+      - maven_cache:/root/.m2
     networks:
       - my-network

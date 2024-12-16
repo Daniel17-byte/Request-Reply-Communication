@@ -79,24 +79,4 @@ public class ReverseProxy {
         return headers;
     }
 
-    @PostMapping("/auth/**")
-    public ResponseEntity<String> proxyPostAuth(HttpServletRequest request, @RequestBody String body) {
-        String path = request.getRequestURI().replace("/api", "");
-        String url = USERS_SERVICE_URL + path;
-
-        HttpHeaders headers = getHttpHeaders(request);
-        HttpEntity<String> entity = new HttpEntity<>(body, headers);
-        return restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-    }
-
-    @GetMapping("/auth/**")
-    public ResponseEntity<String> proxyGetAuth(HttpServletRequest request) {
-        String path = request.getRequestURI().replace("/api", "");
-        String url = USERS_SERVICE_URL + path;
-
-        HttpHeaders headers = getHttpHeaders(request);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        return restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-    }
-
 }
