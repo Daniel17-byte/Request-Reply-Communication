@@ -9,8 +9,6 @@ import org.sd.gateway.model.AuthResponse;
 import org.sd.gateway.model.User;
 import org.sd.gateway.service.CustomUserDetailsService;
 import org.springframework.http.*;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -21,15 +19,12 @@ import java.util.Enumeration;
 @RequestMapping("/auth")
 @CrossOrigin(origins = {"http://localhost:3000"})
 public class AuthController {
-
-    private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final RestTemplate restTemplate;
     private final CustomUserDetailsService customUserDetailsService;
     private static final String USERS_SERVICE_URL = "http://users:8080/api/users";
 
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, RestTemplate restTemplate, CustomUserDetailsService customUserDetailsService) {
-        this.authenticationManager = authenticationManager;
+    public AuthController(JwtUtil jwtUtil, RestTemplate restTemplate, CustomUserDetailsService customUserDetailsService) {
         this.jwtUtil = jwtUtil;
         this.customUserDetailsService = customUserDetailsService;
         this.restTemplate = restTemplate;
